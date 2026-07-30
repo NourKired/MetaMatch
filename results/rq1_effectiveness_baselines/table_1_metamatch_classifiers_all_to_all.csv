@@ -1,0 +1,6 @@
+classifier,mean_f1_all_to_all,std_f1_all_to_all,f1_pm_std,mean_precision_all_to_all,std_precision_all_to_all,precision_pm_std,mean_recall_all_to_all,std_recall_all_to_all,recall_pm_std,n_pair_id
+MetaMatch Random Forest,0.81,0.24,0.81 +/- 0.24,0.8,0.26,0.80 +/- 0.26,0.84,0.24,0.84 +/- 0.24,551
+MetaMatch XGBoost,0.65,0.26,0.65 +/- 0.26,0.73,0.28,0.73 +/- 0.28,0.64,0.3,0.64 +/- 0.30,551
+MetaMatch CatBoost,0.61,0.26,0.61 +/- 0.26,0.65,0.28,0.65 +/- 0.28,0.65,0.31,0.65 +/- 0.31,551
+MetaMatch SVM,0.5,0.25,0.50 +/- 0.25,0.56,0.28,0.56 +/- 0.28,0.55,0.31,0.55 +/- 0.31,551
+MetaMatch Logistic Regression,0.5,0.25,0.50 +/- 0.25,0.56,0.28,0.56 +/- 0.28,0.54,0.31,0.54 +/- 0.31,551

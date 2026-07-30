@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -8,10 +9,18 @@ import numpy as np
 import pandas as pd
 
 
-ROOT = Path("/Users/nahawandkired/Documents/metamatch")
-OUT = ROOT / "outputs/exp_occidata/reports/meeting_baselines_vs_metamatch/rq1_effectiveness_efficiency"
-COMPANION = OUT / "paper_csv"
-COMPANION.mkdir(parents=True, exist_ok=True)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build RQ1 paper-ready CSV files.")
+    parser.add_argument("--output-root", type=Path, default=Path("outputs/exp_occidata"))
+    parser.add_argument("--out-dir", type=Path, required=True)
+    return parser.parse_args()
+
+
+ARGS = parse_args()
+ROOT = Path.cwd()
+OUT = ARGS.out_dir
+PAPER_CSV = OUT / "paper_csv"
+PAPER_CSV.mkdir(parents=True, exist_ok=True)
 
 PLOT_ORDER = [
     "MetaMatch",
@@ -45,7 +54,7 @@ def seconds_to_hours(sec: float | int | None) -> float:
 
 
 def read_feature_build_seconds() -> float:
-    p = OUT.parent / "metamatch_60_runtime_benchmark/runtime_estimate_summary_60features.json"
+    p = OUT.parent / "metamatch_full60_runtime_benchmark/runtime_estimate_summary_60features.json"
     with p.open("r", encoding="utf-8") as f:
         obj = json.load(f)
     return float(obj["estimated_total_feature_build_sec_551"])
@@ -103,7 +112,7 @@ def build_table_metamatch_classifiers() -> None:
         ]
     ]
     table = round_numeric(table, 2)
-    table.to_csv(COMPANION / "table_1_metamatch_classifiers_all_to_all.csv", index=False)
+    table.to_csv(PAPER_CSV / "table_1_metamatch_classifiers_all_to_all.csv", index=False)
     table.to_csv(OUT / "table_1_metamatch_classifiers_all_to_all.csv", index=False)
 
 
@@ -151,8 +160,8 @@ def build_winrate_csvs() -> None:
     win.to_csv(OUT / "winrate_f1_all_to_all_no_ties_percent_matrix.csv")
     support.to_csv(OUT / "winrate_f1_all_to_all_common_support_matrix.csv")
     ties.to_csv(OUT / "winrate_f1_all_to_all_tie_count_matrix.csv")
-    win.to_csv(COMPANION / "figure_2_winrate_f1_all_to_all_no_ties_percent_matrix.csv")
-    long_df.to_csv(COMPANION / "figure_2_winrate_f1_all_to_all_no_ties_long.csv", index=False)
+    win.to_csv(PAPER_CSV / "figure_2_winrate_f1_all_to_all_no_ties_percent_matrix.csv")
+    long_df.to_csv(PAPER_CSV / "figure_2_winrate_f1_all_to_all_no_ties_long.csv", index=False)
 
 
 def build_f1_distribution_csv() -> None:
@@ -163,7 +172,7 @@ def build_f1_distribution_csv() -> None:
     df["method_order"] = df["method"].map({m: i for i, m in enumerate(PLOT_ORDER)})
     df = df.sort_values(["method_order", "method", "pair_id"]).drop(columns=["method_order"])
     df = round_numeric(df, 2)
-    df.to_csv(COMPANION / "figure_3_distribution_f1_all_to_all_by_pair.csv", index=False)
+    df.to_csv(PAPER_CSV / "figure_3_distribution_f1_all_to_all_by_pair.csv", index=False)
     df.to_csv(OUT / "figure_3_distribution_f1_all_to_all_by_pair.csv", index=False)
 
 
@@ -190,7 +199,7 @@ def build_runtime_distribution_csv() -> None:
     out["method_order"] = out["method"].map({m: i for i, m in enumerate(PLOT_ORDER)})
     out = out.sort_values(["method_order", "method", "pair_id"]).drop(columns=["method_order"])
     out = round_numeric(out, 2)
-    out.to_csv(COMPANION / "figure_4_distribution_application_runtime_by_pair.csv", index=False)
+    out.to_csv(PAPER_CSV / "figure_4_distribution_application_runtime_by_pair.csv", index=False)
     out.to_csv(OUT / "figure_4_distribution_application_runtime_by_pair.csv", index=False)
 
 
@@ -279,7 +288,7 @@ def build_efficiency_split_table() -> None:
     table = pd.DataFrame(rows)
     table = round_numeric(table, 2)
     table.to_csv(OUT / "table_efficiency_preliminary_application_total_551_pairs.csv", index=False)
-    table.to_csv(COMPANION / "table_2_efficiency_preliminary_application_total_551_pairs.csv", index=False)
+    table.to_csv(PAPER_CSV / "table_2_efficiency_preliminary_application_total_551_pairs.csv", index=False)
 
     # Keep the microbenchmark summary consistent with the corrected RF train estimate.
     corrected_summary = pd.read_csv(OUT / "metamatch_rf_predict_only_microbenchmark_summary.csv")
@@ -292,7 +301,7 @@ def build_efficiency_split_table() -> None:
     corrected_summary["rf_train_time_note"] = rf_train_note
     corrected_summary = round_numeric(corrected_summary, 2)
     corrected_summary.to_csv(OUT / "metamatch_rf_predict_only_microbenchmark_summary.csv", index=False)
-    corrected_summary.to_csv(COMPANION / "table_2a_metamatch_rf_time_components.csv", index=False)
+    corrected_summary.to_csv(PAPER_CSV / "table_2a_metamatch_rf_time_components.csv", index=False)
 
 
 def main() -> None:
@@ -301,7 +310,7 @@ def main() -> None:
     build_f1_distribution_csv()
     build_runtime_distribution_csv()
     build_efficiency_split_table()
-    print(f"Saved paper CSVs in: {COMPANION}")
+    print(f"Saved paper CSVs in: {PAPER_CSV}")
 
 
 if __name__ == "__main__":

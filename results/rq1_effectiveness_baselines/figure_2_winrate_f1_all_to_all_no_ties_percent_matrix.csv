@@ -1,5 +1,5 @@
-,MetaSpace,LLMATCH,SMUTF,MagnetoFTGPT,MagnetoFT,MagnetoGPT,Magneto,ISResMat,COMA++,COMA,Similarity Flooding,Distribution Based,Cupid
-MetaSpace,,,,,,,,100.0,100.0,100.0,100.0,100.0,100.0
+Unnamed: 0,MetaMatch,LLMATCH,SMUTF,MagnetoFTGPT,MagnetoFT,MagnetoGPT,Magneto,ISResMat,COMA++,COMA,Similarity Flooding,Distribution Based,Cupid
+MetaMatch,,,,,,,,100.0,100.0,100.0,100.0,100.0,100.0
 LLMATCH,,,86.97,,,,,98.3,100.0,100.0,100.0,100.0,
 SMUTF,,13.03,,,,,,93.18,100.0,100.0,100.0,100.0,
 MagnetoFTGPT,,,,,96.06,54.83,85.02,91.3,81.78,87.0,83.17,95.9,94.84

@@ -58,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--score-files",
         type=str,
-        default="baseline_scores_only.parquet,metamatch_xgboost_61_scores_only.parquet",
+        default="baseline_scores_only.parquet,metamatch_xgboost_60_scores_only.parquet",
     )
     p.add_argument("--primary-metric", choices=["f1_opt_train", "f1_ground_size"], default="f1_ground_size")
     return p.parse_args()
