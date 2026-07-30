@@ -1,0 +1,11 @@
+rank,feature,family
+1,syn_cosine_bigrams,syn
+2,syn_jaccard_trigrams,syn
+3,syn_jaccard_tokens,syn
+4,syn_jaro_winkler,syn
+5,cls_euclidean,cls
+6,syn_lcs_ratio,syn
+7,cls_chebyshev,cls
+8,syn_len_b,syn
+9,syn_common_suffix_ratio,syn
+10,tda_h0_entropy_combined,tda

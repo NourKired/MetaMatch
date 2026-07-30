@@ -1,0 +1,15 @@
+method,preliminary_computation,preliminary_time_sec,preliminary_time_hours,application_time_sec_551_pairs,application_time_hours_551_pairs,known_total_time_sec_551_pairs,known_total_time_hours_551_pairs,n_runtime_pairs,application_source,preliminary_note
+Full MetaSpace,60 meta-features construction + RF training,66565.13,18.49,3.76,0.0,66568.89,18.49,551,RF predict_proba only on all test rows over 6 folds,"Recalibrated from real fold_0 RF fit with n_jobs=-1 (50.59s for 260706 train rows), scaled by total train rows over the 6 folds."
+LLMATCH,/,,,10540.86,2.93,10540.86,2.93,549,mean pair runtime x 551,External/precomputed cost not logged.
+SMUTF,XGBoost fine-tuning,7977.31,2.22,15.6,0.0,7992.91,2.22,551,16 official XGBoost models predict-only over 551 pairs,Local SMUTF complet-complet fine-tuning duration estimated from model timestamps.
+MagnetoFTGPT,fine-tuning,306456.07,85.13,23410.89,6.5,329866.96,91.63,547,mean pair runtime x 551,Estimated from measured CPU batches: one category model x 5 categories.
+MagnetoFT,fine-tuning,306456.07,85.13,7199.53,2.0,313655.6,87.13,550,mean pair runtime x 551,Estimated from measured CPU batches: one category model x 5 categories.
+MagnetoGPT,/,,,25718.39,7.14,25718.39,7.14,547,mean pair runtime x 551,No fine-tuning in this run; original checkpoint cost not logged.
+Magneto,/,,,7659.29,2.13,7659.29,2.13,550,mean pair runtime x 551,No fine-tuning in this run; original checkpoint cost not logged.
+ISResMat,/,0.0,0.0,67788.31,18.83,67788.31,18.83,543,mean pair runtime x 551,/
+COMA++,/,0.0,0.0,71928.14,19.98,71928.14,19.98,543,mean pair runtime x 551,/
+COMA,/,0.0,0.0,1081.49,0.3,1081.49,0.3,549,mean pair runtime x 551,/
+Similarity Flooding,/,0.0,0.0,1882.82,0.52,1882.82,0.52,551,mean pair runtime x 551,/
+Distribution Based,/,0.0,0.0,17444.68,4.85,17444.68,4.85,551,mean pair runtime x 551,/
+Cupid,/,0.0,0.0,38741.09,10.76,38741.09,10.76,551,mean pair runtime x 551,/
+Reduced MetaSpace,10 meta-features construction + RF training,5619.63,1.561008333333333,0.63,0.000175,5620.26,1.5611833333333334,551,RF predict-only estimated from full MetaSpace predict-only time scaled by selected-feature ratio 10/60,Construction time from selected-feature extractor estimate; RF train/test total kept equal to feature-selection table total.

@@ -1,0 +1,15 @@
+method,preliminary_or_training,preliminary_or_training_time_sec,runtime_over_551_pairs_sec,total_time_sec,total_time_hours,runtime_source
+Full MetaSpace,RF train+test,249.47,66251.24,66500.71,18.47,60 meta-features construction over 551 pairs
+LLMATCH,/,0.0,10540.86,10540.86,2.93,mean pair runtime x 551
+SMUTF,XGBoost fine-tuning,4499.0,31326.03,35825.03,9.95,Observed SMUTF fold runtime amortized over table pairs; fine-tuning measured in real complet-complet benchmark.
+MagnetoFTGPT,fine-tuning,306456.07,23410.89,329866.96,91.63,mean pair runtime x 551
+MagnetoFT,fine-tuning,306456.07,7199.53,313655.6,87.13,mean pair runtime x 551
+MagnetoGPT,/,0.0,25718.39,25718.39,7.14,mean pair runtime x 551
+Magneto,/,0.0,7659.29,7659.29,2.13,mean pair runtime x 551
+ISResMat,/,0.0,67788.31,67788.31,18.83,mean pair runtime x 551
+COMA++,/,0.0,71928.14,71928.14,19.98,mean pair runtime x 551
+COMA,/,0.0,1081.49,1081.49,0.3,mean pair runtime x 551
+Similarity Flooding,/,0.0,1882.82,1882.82,0.52,mean pair runtime x 551
+Distribution Based,/,0.0,17444.68,17444.68,4.85,mean pair runtime x 551
+Cupid,/,0.0,38741.09,38741.09,10.76,mean pair runtime x 551
+Reduced MetaSpace,RF train+test,195.28,5424.98,5620.26,1.56,10 selected meta-features construction over 551 pairs

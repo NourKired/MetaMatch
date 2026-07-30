@@ -1,0 +1,692 @@
+\documentclass[sigconf, nonacm]{acmart}
+
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{dsfont}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{graphicx}
+\graphicspath{{figures/}{rq1_effectiveness_efficiency/}}
+\usepackage{enumitem}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+\urlstyle{same}
+\setlength{\textfloatsep}{7pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{7pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
+\captionsetup{font=small,skip=3pt}
+
+\newcommand\vldbdoi{XX.XX/XXX.XX}
+\newcommand\vldbpages{XXX-XXX}
+\newcommand\vldbvolume{19}
+\newcommand\vldbissue{1}
+\newcommand\vldbyear{2026}
+\newcommand\vldbauthors{\authors}
+\newcommand\vldbtitle{\shorttitle}
+\newcommand\vldbavailabilityurl{https://github.com/NourKired/metamatch}
+\newcommand\vldbpagestyle{plain}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\DS}{\mathcal{DS}}
+\newcommand{\Schema}{\mathcal{S}}
+\newcommand{\Inst}{\mathcal{I}}
+\newcommand{\VR}{\mathrm{VR}}
+\newcommand{\Dgm}{\mathrm{Dgm}}
+\newcommand{\PE}{\mathrm{PE}}
+\newcommand{\Agg}{\mathrm{Aggregate}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\concat}{\mathbin{\|}}
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\second}[1]{\underline{#1}}
+
+
+
+\begin{document}
+
+\title{MetaMatch: A Topology-Aware Meta-Space for Schema Matching}
+
+\author{Nour Elhouda KIRED}
+\authornote{Corresponding author.}
+\orcid{0009-0009-0610-6280}
+\email{nour-elhouda.kired@irit.fr}
+\affiliation{%
+  \institution{Universit\'e Toulouse II Jean Jaur\`es, IRIT}
+  \city{Toulouse}
+  \country{France}
+}
+
+
+
+\author{Olivier TESTE}
+\orcid{0000-0003-0338-9886}
+\email{olivier.teste@irit.fr}
+\affiliation{%
+  \institution{Universit\'e Toulouse II Jean Jaur\`es, IRIT}
+  \city{Toulouse}
+  \country{France}
+}
+
+\begin{abstract}
+Schema matching remains a central task in data integration. Recent embedding-based methods improve semantic comparison between columns, but they often rely on local similarities or distances between pooled column embeddings. In this paper, we propose MetaMatch, a supervised framework for complete tabular data based on a topology-aware meta-space. Each candidate column pair is represented by a meta-feature vector that combines syntactic, distance-based, and topological evidence extracted from transformer-based column representations. To our knowledge, such topological meta-features have not been used before for tabular schema matching. The topological component describes not only the source and target token clouds separately, but also their joint source--target representation in a shared embedding space. This joint view captures how the two columns merge geometrically, providing information that is not reduced to a single cosine distance or to two separate persistence diagrams. A supervised meta-learner then uses this meta-space to predict column correspondences. Experiments on the Valentine benchmark show that MetaMatch is competitive with established baselines, and that a reduced set of 10 meta-features preserves most of the effectiveness while substantially lowering runtime. The retained topological descriptor comes from the combined source--target representation, supporting the usefulness of joint topological meta-features for robust tabular schema matching.
+\end{abstract}
+
+\keywords{Schema Matching, Data Integration, Tabular Data, Meta-Space, Topological Data Analysis, Persistent Homology}
+
+\maketitle
+
+\pagestyle{\vldbpagestyle}
+\begingroup
+\small\noindent\raggedright
+\textbf{PVLDB Reference Format:}\\
+\vldbauthors. \vldbtitle. PVLDB, \vldbvolume(\vldbissue): \vldbpages, \vldbyear.\\
+\href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
+\endgroup
+
+\begingroup
+\renewcommand\thefootnote{}\footnote{
+\noindent
+This work is licensed under the Creative Commons BY-NC-ND 4.0 International License.\\
+Visit \url{https://creativecommons.org/licenses/by-nc-nd/4.0/}.\\
+Copyright is held by the author(s). Publication rights licensed to the VLDB Endowment.\\
+Proceedings of the VLDB Endowment, Vol. \vldbvolume, No. \vldbissue\ (ISSN 2150-8097).\\
+\href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
+}\addtocounter{footnote}{-1}
+\endgroup
+
+\ifdefempty{\vldbavailabilityurl}{}{
+\vspace{.3cm}
+\begingroup\small\noindent\raggedright
+\textbf{PVLDB Artifact Availability:}\\
+The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
+\endgroup
+}
+
+\section{Introduction}
+
+Many real-world data integration tasks involve aligning different tabular sources. Aligning tabular data remains a complex and error-prone process in data integration, since different tables may describe the same concepts with different names, formats, or value distributions. 
+
+In practice, schema matching aims to identify correspondences between attributes that refer to the same concept in two tabular sources~\cite{rahm2001survey,dong2015big}. This task remains challenging because tabular data are different at several levels. Column names may be short, ambiguous, or inconsistent across sources. Column values may be noisy, sparse, or strongly domain-specific. As a result, using similarity measures based solely on simple syntactic comparisons or shared-token signals is often insufficient. \cite{madhavan2001cupid,kang2003schema,satti2022significance}
+
+Traditional schema-based, instance-based, and hybrid methods compare labels, structural hints, data types, and value distributions~\cite{do2002coma,aumueller2005coma}. Supervised approaches combine several signals and learn how to separate matches from non-matches~\cite{doan2003learning,bilke2005marlin,mudgal2018deepmatcher}. More recent methods rely on transformer-based language models to obtain vector representations of columns from embedding spaces~\cite{devlin2019bert,he2022bertmap}. These methods are useful because they capture richer semantic relations. However, in many cases, the final comparison still relies on local measures computed between pooled vectors, such as cosine or Euclidean distance. \cite{Fan2022Semantics,Zeakis2023Pre}
+
+This local view does not fully exploit the internal structure of embedding representations. A column is not only represented by a single pooled vector. It is also represented by a set of contextual token embeddings produced by the encoder. These token-level representations contain geometric information that is largely lost after pooling. We believe that this internal structure can provide useful information for schema matching.
+
+In this paper, we propose MetaMatch, a supervised framework for aligning complete tabular data. Our approach encodes columns into dense vector representations using a transformer-based sentence encoder enabling comparison within a shared representation space. From these embeddings, we construct a \textit{meta-space} that captures hidden geometric relationships between candidate column pairs.
+
+This meta-space is defined through a large set of meta-features. It includes syntactic meta-features computed from textual representations, distance-based meta-features computed from pooled embeddings, and topological meta-features computed from token-level embeddings. The syntactic and distance-based meta-features correspond to signals already used in the literature. The topological meta-features rely on an original geometric extraction based on persistent homology up to dimensions \(H_0\), \(H_1\), and \(H_2\). An important part of this extraction is the construction of a joint source--target topological representation: instead of only computing one persistence diagram for each column and then comparing the two diagrams with a distance, we also stack the two token clouds in the same embedding space and compute a single combined diagram. This combined diagram describes how both columns are organized when they are seen together in the same space.
+
+To the best of our knowledge, this joint topological construction has not been explicitly used for schema matching on complete tabular data. Our objective is not to replace standard meta-features, but to enrich them with extra geometric information that cannot be reduced to a single distance between pooled embeddings. The feature-selection results later confirm the usefulness of this design, since the only topological descriptor retained in the reduced MetaMatch is a combined-cloud descriptor.
+
+The main contributions of this work are as follows.
+\begin{itemize}[leftmargin=*]
+    \item We define a supervised schema matching framework dedicated to complete tabular data.
+    \item We define a meta-space representation that combines \(22\) syntactic meta-features, \(7\) distance-based meta-features, and \(31\) topological meta-features computed from transformer-based embeddings.
+    \item We introduce an original joint topological construction: source and target token embeddings are projected into the same representation space and summarized both through separate persistence diagrams and through a single combined source--target diagram.
+    \item We provide a unified representation in which standard and topological signals are jointly exploited by a supervised classifier, and we identify a reduced 10-meta-feature core where the retained topological descriptor comes from the combined source--target construction.
+\end{itemize}
+
+The remainder of the paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:framework} presents the proposed framework and details the meta-space generation. Section~\ref{sec:experiments} reports the experimental evaluation. Finally, Section~\ref{sec:conclusion} concludes the paper and outlines future work.
+
+\section{Related Work}
+\label{sec:related}
+
+Schema matching is a long-standing problem in data integration~\cite{rahm2001survey,dong2015big}. Classical approaches rely on lexical, structural, and instance-based evidence to identify correspondences between attributes. Representative systems such as COMA and COMA++ combine multiple matching signals in a flexible way~\cite{do2002coma,aumueller2005coma}. These methods remain important because they provide interpretable evidence and strong practical baselines. However, they are often sensitive to short labels, inconsistent naming conventions, noisy values, and weak metadata.
+
+To address these limitations, supervised methods learn how to combine several signals from labeled examples. Early systems such as LSD and MARLIN showed that feature-based learning can improve matching decisions beyond hand-crafted rules~\cite{doan2003learning,bilke2005marlin}. More recent approaches rely on neural representations and end-to-end learning~\cite{mudgal2018deepmatcher}. In all these cases, however, the quality of the learned decision strongly depends on the quality of the input representation. If the feature space captures only a limited part of the relation between two columns, the learning stage can only exploit that limited information.
+
+Recent advances in representation learning have further changed the landscape. Transformer models provide contextual embeddings that improve semantic comparison beyond exact lexical matching~\cite{devlin2019bert}. In matching-related tasks, such embeddings have been used to compare different labels and textual descriptions more effectively~\cite{he2022bertmap}. Nevertheless, most embedding-based approaches still describe a candidate pair through local pairwise measures computed on pooled vectors. Such measures are useful, but they do not describe the internal organization of token-level embeddings, and therefore ignore useful geometric structure.
+
+Recent work has also explored schema matching with neural and large-language-model (LLM) pipelines. Embedding-based systems such as ISResMat show the benefit of fine-tuning pretrained encoders directly for relational schema matching~\cite{du2024isresmat}. Experimental evidence further shows that off-the-shelf large language models (LLMs) can assist schema matching, but that their effectiveness remains strongly dependent on the amount and quality of the provided context~\cite{parciak2024schema}. Other recent approaches improve matching through retrieval-enhanced prompting, generated semantic tags, unified LLM workflows, or combinations of small and large language models~\cite{sheetrit2024rematch,zhang2024smutf,liu2024magneto,wang2025llmatch}. These methods confirm the value of modern language models for schema matching, but they still mainly rely on semantic comparison, prompt design, or local similarity evidence rather than on an explicit description of the internal shape of embeddings.
+
+This observation motivates the use of Topological Data Analysis (TDA). TDA studies the shape of data through tools such as persistent homology~\cite{edelsbrunner2002topological,zomorodian2005computing,chazal2021tda}. Instead of reducing a representation to a single point or a single distance, persistent homology captures how connected components, cycles, and higher-order structures appear and disappear across scales. Its outputs, namely persistence diagrams, can then be summarized through descriptors such as counts, maximum lifetimes, and persistence entropy, or compared through bottleneck and Wasserstein distances~\cite{cohen2007stability,chintakunta2015entropy,merelli2015topological}. Although these tools have proved useful in other learning settings, we did not find prior work that explicitly uses topological extraction from token-level transformer embeddings to build a meta-space for schema matching on complete tabular data.
+
+Our work is positioned at the intersection of these directions. We retain the standard syntactic and embedding-based signals used in schema matching, and we enrich them with topological descriptors derived from token-level embeddings in order to capture multi-scale structure that are lost after pooling.
+
+\section{Proposed Framework}
+\label{sec:framework}
+
+\subsection{Overview of the Framework}
+
+We consider two complete tabular sources
+\[
+\DS_1=(\Schema_1,\Inst_1), \qquad \DS_2=(\Schema_2,\Inst_2),
+\]
+where \(\Schema_1=[a_1,\dots,a_n]\) and \(\Schema_2=[b_1,\dots,b_m]\) denote the attribute lists, and \(\Inst_1\) and \(\Inst_2\) denote the instances. The task is to predict the alignment
+\[
+\mathcal{A}=\{(u,v)\mid a_u \in \Schema_1 \text{ and } b_v \in \Schema_2 \text{ match}\}.
+\]
+Here, \(u\in\{1,\dots,n\}\) indexes a source column in $\DS_1$, and \(v\in\{1,\dots,m\}\) indexes a target column in $\DS_2$. Thus, \((u,v)\) denotes a candidate correspondence between source attribute \(a_u\) and target attribute \(b_v\).
+
+Figure~\ref{fig:framework} summarizes the framework. It contains four main stages: embedding generation, meta-space generation, meta-learner training, and alignment inference.
+
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=.92\textwidth]{images/framework_overview.png}
+    \caption{Overview of the proposed MetaMatch framework. Complete tabular sources are transformed into column embeddings. Candidate column pairs are represented in a meta-space built from syntactic, distance-based, and topological meta-features. A supervised meta-learner is trained on \(M_{Train}\) and applied to \(M_{Test}\) to infer the final alignment \(\mathcal{A}\).}
+    \Description{Pipeline figure with four main stages: embedding generation, meta-space generation from syntactic, distance-based, and topological meta-features, meta-learner training, and alignment inference.}
+    \label{fig:framework}
+\end{figure*}
+\subsection{Detailed Framework Components}
+
+\subsubsection{\textbf{Embedding Generation}}
+\paragraph{\textbf{Column serialization.}} For each column, we build a textual representation from the complete tabular information available in the source. More precisely, our implementation serializes each column as
+\[
+x = \texttt{column\_name} \concat \texttt{" || "} \concat \Agg(\texttt{column\_values})
+\]
+where \(\texttt{column\_name}\) is the attribute name in the table, \(\concat\) denotes ordered string concatenation with a fixed separator, and \(\Agg(\cdot)\) denotes a deterministic aggregation of representative values. In the current implementation, this aggregation keeps the most frequent non-empty values, with a fixed truncation budget. This gives a concise textual view of the column that contains both schema information and instance information.
+For the \(u\)-th source column and the \(v\)-th target column, we denote these inputs by \(x_1^u\) and \(x_2^v\).
+
+\paragraph{\textbf{Transformer encoding.}}
+
+Each serialized column \(x\) is encoded by a transformer model. Let
+\[
+Z(x)=\left[\mathbf{z}_1,\dots,\mathbf{z}_{L_x}\right]^{\top}\in\R^{L_x\times d}
+\]
+be the token-level embedding matrix returned by the encoder, where \(L_x\) is the number of tokens and \(d\) is the embedding dimension.
+
+We use two representations.
+\begin{itemize}[leftmargin=*]
+    \item A pooled embedding vector
+    \[
+    \mathbf{e}(x)=\frac{1}{L_x}\sum_{r=1}^{L_x}\mathbf{z}_r
+    \]
+    \item A token-level point cloud
+    \[
+    X(x)=\{\mathbf{z}_r \mid 1\le r \le L_x\}\subset\R^d
+    \]
+\end{itemize}
+
+For a candidate pair \((u,v)\), we write
+\[
+\mathbf{e}_1^u=\mathbf{e}(x_1^u) \qquad \mathbf{e}_2^v=\mathbf{e}(x_2^v)
+\]
+\[
+X_1^u=X(x_1^u) \qquad X_2^v=X(x_2^v)
+\]
+
+The pooled vectors are used by the distance-based meta-features. The token clouds are used by the topological meta-features.
+
+\subsubsection{\textbf{Meta-Space Generation}}
+
+The meta-space generation stage is the central block of the framework. It receives the serialized texts, pooled embeddings, and token-level embeddings associated with a candidate source-target column pair, and converts them into a single numerical vector. For each candidate pair \((u,v)\), we construct a meta-feature vector
+\[
+\mathbf{m}_{uv}=
+\phi_{\mathrm{syn}}(u,v)
+\concat
+\phi_{\mathrm{dis}}(u,v)
+\concat
+\phi_{\mathrm{tda}}(u,v)
+\]
+
+In the current version of the framework, the meta-space contains \(60\) meta-features: \(22\) syntactic meta-features, \(7\) distance-based meta-features, and \(31\) topological meta-features derived from persistent homology.
+
+\paragraph{\textbf{Classical Meta-Features}}
+
+The classical part of the meta-space contains two families. These meta-features are already used in schema matching or in related text-similarity settings. In our framework, they are kept as strong evidence and as an essential component of the final representation.
+\begin{enumerate}
+    \item  \textit{Syntactic meta-features.}
+The syntactic meta-features correspond to the variables with prefix \texttt{syn\_} in the implementation. They are computed from the serialized column texts after normalization by lowercasing, accent removal, separator normalization, and whitespace compression. The 22 meta-features cover string lengths, equality and containment indicators, edit distances and their normalized variants, longest-common-subsequence measures, common-prefix and common-suffix ratios, token-set similarities, character \(n\)-gram similarities, and Jaro/Jaro--Winkler similarities.
+
+These meta-features provide explicit lexical evidence. They are especially useful when the two columns share a close naming convention or when representative values reuse the same terminology.
+
+\item \textit{Distance-based embedding meta-features.}
+The distance-based meta-features are denoted with the prefix \texttt{dis\_} in the paper. They are computed from the pooled embeddings \(\mathbf{e}_1^u\) and \(\mathbf{e}_2^v\). In this paper, we keep \(7\) geometric meta-features:
+\begin{itemize}[leftmargin=*]
+    \item Euclidean distance: \texttt{dis\_euclidean},
+    \item cosine similarity: \texttt{dis\_cosine\_sim},
+    \item Pearson correlation: \texttt{dis\_pearson},
+    \item Spearman correlation: \texttt{dis\_spearman},
+    \item Minkowski distance with \(p=3\): \texttt{dis\_minkowski},
+    \item Canberra distance: \texttt{dis\_canberra},
+    \item Chebyshev distance: \texttt{dis\_chebyshev}.
+\end{itemize}
+
+These meta-features capture local geometric relations in the embedding space. They remain simple, standard, and effective. For this reason, they form the distance-based part of the meta-space.
+\end{enumerate}
+
+
+\noindent \paragraph{\textbf{Topological Meta-Features. }}
+The topological part of the meta-space corresponds to the variables with prefix \texttt{tda\_}. This is the original component of MetaMatch. While syntactic and distance-based meta-features compare columns through names, values, or pooled embeddings, the topological meta-features describe the geometry of the token-level embedding clouds.
+
+\noindent\textit{From token embeddings to point clouds.}
+For each serialized column text \(x\), the transformer returns contextualized token embeddings. We interpret them as a point cloud
+\[
+X(x)=\{\mathbf{z}_1,\dots,\mathbf{z}_L\}\subset \R^d,
+\]
+where each point corresponds to one token representation. A pooled embedding summarizes this cloud by a single vector. In contrast, persistent homology keeps information about how the token representations are organized across scales. This matters because two columns can have similar pooled embeddings while having different internal token structure.
+
+For a point cloud \(X\), we build a Vietoris--Rips filtration under the Euclidean metric. At scale \(\varepsilon\geq 0\), the complex \(\VR_{\varepsilon}(X)\) connects points whose pairwise distances are small enough, and then fills higher-order simplices when groups of points are mutually connected. As \(\varepsilon\) increases, connected components merge, cycles may appear and disappear, and higher-dimensional voids may be formed. Persistent homology records these events through persistence diagrams.
+
+We compute persistent homology up to dimension \(2\):
+\begin{itemize}[leftmargin=*]
+    \item \(H_0\): connected components;
+    \item \(H_1\): one-dimensional cycles;
+    \item \(H_2\): two-dimensional voids.
+\end{itemize}
+Figure~\ref{fig:vr-intuition} illustrates the intuition on real candidate pairs.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=.98\textwidth]{images/topology_vr_h0_h1_h2_metamatch.png}
+    \caption{Vietoris--Rips filtration and persistence summary for a real matching and non-matching MetaMatch candidate pair from the same table pair. Each row shows the filtration, the persistence diagram up to $H_2$, the $H_0/H_1$ diagram distances, and the combined-cloud count, maximum lifetime, and entropy. The non-matching pair exhibits larger source--target diagram distances and a different persistence profile, illustrating why topological meta-features provide information beyond pooled embedding distance.}
+    \Description{Two-row figure comparing a matching and a non-matching candidate pair. Each row contains Vietoris-Rips filtration panels, a persistence diagram with H0, H1, and H2, diagram distances, and combined persistence statistics.}
+    \label{fig:vr-intuition}
+\end{figure*}
+
+For a homology dimension \(\kappa\in\{0,1,2\}\), the persistence diagram is
+\[
+\Dgm_{\kappa}(X)=\{(b_{\tau}^{(\kappa)},d_{\tau}^{(\kappa)})\}_{\tau=1}^{N_{\kappa}},
+\]
+where \(b_{\tau}^{(\kappa)}\) and \(d_{\tau}^{(\kappa)}\) are the birth and death scales of the \(\tau\)-th structure. Its lifetime is
+\[
+\pi_{\tau}^{(\kappa)}=d_{\tau}^{(\kappa)}-b_{\tau}^{(\kappa)}.
+\]
+From each diagram, we extract three summaries:
+\[
+\mathrm{count}_{\kappa}(X)=N_{\kappa},
+\qquad
+\mathrm{maxlife}_{\kappa}(X)=\max_{\tau}\pi_{\tau}^{(\kappa)},
+\]
+\[
+\PE_{\kappa}(X)=-\sum_{\tau=1}^{N_{\kappa}} p_{\tau}^{(\kappa)}\log p_{\tau}^{(\kappa)},
+\qquad
+p_{\tau}^{(\kappa)}=\frac{\pi_{\tau}^{(\kappa)}}{\sum_{\mu=1}^{N_{\kappa}}\pi_{\mu}^{(\kappa)}}.
+\]
+The count measures how many structures are detected, the maximum lifetime measures the most stable structure, and persistence entropy measures how persistence is distributed across structures.
+
+\noindent\textit{Source, target, and joint topology.}
+For a candidate source column \(u\) and target column \(v\), let \(X_1^u\) and \(X_2^v\) be their token clouds. MetaMatch extracts topology at three levels. First, it describes the source cloud alone. Second, it describes the target cloud alone. Third, it constructs a joint source--target cloud in the same embedding space:
+\[
+X_{uv}^{\mathrm{comb}}=
+\begin{bmatrix}
+X_1^u\\
+X_2^v
+\end{bmatrix}.
+\]
+Computing persistent homology on \(X_{uv}^{\mathrm{comb}}\) gives one diagram for the candidate pair itself. This is different from only computing two diagrams separately and comparing them afterward. The joint diagram describes how the two token clouds behave when they are observed together. If the columns express the same concept, their clouds are expected to merge more coherently; if they express different concepts, the combined cloud can remain more separated or produce a different persistence profile.
+
+\noindent\textit{Diagram distances.}
+In addition to diagram summaries, we compare the source and target diagrams with bottleneck and Wasserstein distances. For two diagrams \(D_1\) and \(D_2\), the bottleneck distance is
+\[
+d_B(D_1,D_2)=\inf_{\eta:D_1\to D_2}\;\sup_{p\in D_1}\|p-\eta(p)\|_{\infty},
+\]
+and the Wasserstein distance is
+\[
+W_2(D_1,D_2)=
+\left(\inf_{\eta:D_1\to D_2}\sum_{p\in D_1}\|p-\eta(p)\|_{\infty}^{2}\right)^{1/2},
+\]
+where \(\eta\) ranges over matchings between diagram points, including matches to the diagonal. In MetaMatch, these distances are computed as
+\[
+d_B\!\left(\Dgm_{\kappa}(X_1^u),\Dgm_{\kappa}(X_2^v)\right),
+\qquad
+W_2\!\left(\Dgm_{\kappa}(X_1^u),\Dgm_{\kappa}(X_2^v)\right),
+\]
+for \(\kappa\in\{0,1\}\). We do not use \(H_2\) diagram distances because finite \(H_2\) structures, which correspond to voids, are often absent in short column token clouds. In that case, distances between \(H_2\) diagrams are frequently undefined or uninformative. We therefore keep \(H_2\) through stable per-cloud summaries, but restrict inter-diagram distances to \(H_0\) and \(H_1\).
+
+\noindent\textit{Implemented topological meta-features.}
+The final topological vector \(\phi_{\mathrm{tda}}(u,v)\) contains \(31\) meta-features:
+\begin{itemize}[leftmargin=*]
+    \item \(9\) source-column meta-features: count, maximum lifetime, and entropy for \(H_0\), \(H_1\), and \(H_2\);
+    \item \(9\) target-column meta-features: the same summaries for the target cloud;
+    \item \(9\) combined-cloud meta-features: the same summaries for \(X_{uv}^{\mathrm{comb}}\);
+    \item \(4\) source--target distances: bottleneck and Wasserstein distances for \(H_0\) and \(H_1\).
+\end{itemize}
+
+The resulting vector summarizes three signals: the internal topology of the source column, the internal topology of the target column, and the topology of their joint representation. The third signal is the main topological contribution of MetaMatch. It allows the model to represent the geometry of the candidate pair itself, instead of relying only on pooled embedding distances or on distances between two separately built diagrams.
+
+The match/non-match comparison in Figure~\ref{fig:vr-intuition} gives a concrete example of this signal: the non-matching candidate has larger source--target diagram distances and a different combined persistence profile. The goal is not to use topology as a standalone matcher, but to add geometric evidence that complements syntactic and distance-based meta-features.
+
+
+
+\subsection{\textbf{Meta-Learner Training}}
+
+Once the meta-space is built, each candidate pair is represented by a meta-feature vector \(\mathbf{m}_{uv}\in\R^{60}\). Let
+\[
+M_{\mathrm{Train}}=\{(\mathbf{m}_{uv},y_{uv})\}
+\]
+be the training meta-space, where \(y_{uv}\in\{0,1\}\) indicates whether the two columns match.
+
+Before training, the meta-features are normalized so that descriptors with different scales can be used together. The meta-learner is then trained on the syntactic, distance-based, and topological meta-features to produce a scoring model
+\[
+\mathcal{F}(\mathbf{m}_{uv})=\mathbb{P}(y_{uv}=1\mid \mathbf{m}_{uv}).
+\]
+The trained model \(\mathcal{F}\) is passed to the inference stage.
+
+\subsection{\textbf{Alignment Inference}}
+
+For a new table pair, MetaMatch performs \textbf{many-to-many alignment}: several source attributes may match several target attributes. It therefore scores all source--target candidate pairs. For each candidate pair \((u,v)\), the trained model \(\mathcal{F}\) outputs a match score in \([0,1]\). A decision threshold \(\tau\) converts this score into a binary decision:
+\[
+\hat{y}_{uv}=\mathds{1}\!\left\{\mathcal{F}(\mathbf{m}_{uv})>\tau\right\}.
+\]
+The final predicted alignment is
+\[
+\widehat{\mathcal{A}}=\{(u,v)\mid \hat{y}_{uv}=1\}.
+\]
+
+This stage corresponds to the alignment inference block of Figure~\ref{fig:framework}. The experimental section then specifies the data split, normalization, model choice, and threshold selection.
+
+\section{Experiments}
+\label{sec:experiments}
+
+This section evaluates the proposed topology-aware meta-space for schema matching. We study effectiveness against baselines, reduced meta-feature selection, runtime, and meta-feature family ablations.
+
+\subsection{Research Questions}
+
+Our experimental analysis is organized around the following research questions.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Effectiveness and baselines).} How effective is MetaMatch for many-to-many schema matching, which classifier should be used, and how does it compare with established baselines?
+    \item \textbf{RQ2 (Meta-feature selection).} Can a two-level selection strategy remove redundant meta-features and retain a reduced, effective meta-space?
+    \item \textbf{RQ3 (Efficiency).} How much runtime is saved by the reduced meta-feature set compared with the full meta-space with 60 meta-features and with baselines?
+    \item \textbf{RQ4 (Family ablation).} What is the contribution of the syntactic, distance-based, and topological meta-feature families?
+\end{itemize}
+
+\subsection{Datasets}
+
+We evaluate our framework on the Valentine benchmark~\cite{delft2021valentine}. The benchmark contains 551 table pairs from five dataset sources: \textit{TPC-DI}, \textit{ChEMBL}, \textit{WikiData}, \textit{OpenData}, and \textit{Magellan}. These sources cover different schema matching regimes. \textit{TPC-DI} contains moderately structured transactional data; \textit{ChEMBL} contains biomedical attributes and domain-specific vocabulary; \textit{WikiData} contains music-related entities with structural heterogeneity; \textit{OpenData} contains government tables from Canada, the United States, and the United Kingdom; and \textit{Magellan} contains curated entity-matching datasets from domains such as e-commerce and bibliographic data.
+
+\begin{table}[!t]
+\centering
+\caption{Dataset overview from the Valentine benchmark.}
+\label{tab:dataset_characteristics}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{\# table pairs} & \textbf{\# rows} & \textbf{\# attributes} \\
+\midrule
+TPC-DI & 180 & 7.5k--15k & 11--22 \\
+ChEMBL & 180 & 7.5k--15k & 12--23 \\
+OpenData & 180 & 11.6k--23.2k & 26--51 \\
+WikiData & 4 & 1.8k--5.4k & 13--20 \\
+Magellan & 7 & 331--66.8k & 4--9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Experimental Setup}
+
+For each table pair, we evaluate the complete candidate space: every source attribute is paired with every target attribute. Candidate pairs are represented with the MetaMatch meta-features defined in Section~\ref{sec:framework}.
+
+The evaluation uses six folds built at the table-pair level. All candidates from the same table pair are kept in the same fold. This avoids leakage: the model never sees, during training, another candidate row or reference correspondence from a table pair used for testing. The folds mix the five Valentine sources, so the evaluation tests generalization across domains rather than memorization of one source family.
+
+For MetaMatch, the decision threshold is learned only from training data. In each fold, we choose the threshold that maximizes the mean F1 over the training table pairs, and then apply it unchanged to the test table pairs. Test labels are never used to choose the threshold.
+
+All classifier comparisons and meta-feature selection experiments use the same candidate space and the same six folds. We also repeat the MetaMatch train/test process with ten random seeds over the six folds to check that the results are not driven by one initialization; these seed-level results are reported in the companion artifact.
+
+All experiments are run on a MacBook Pro with a 2.6 GHz 6-core Intel Core i7 processor, 32 GB RAM, and macOS 14.5. Runtime results are therefore reported for this local machine.
+
+We compare MetaMatch with the following baselines on the same table pairs and, when fold-based evaluation is required, on the same six folds: LLMATCH, SMUTF, MagnetoFTGPT (Magneto with fine-tuning and GPT-based augmentation), MagnetoGPT (Magneto with GPT-based augmentation), MagnetoFT (fine-tuned Magneto), Magneto, COMA++, COMA, Similarity Flooding, ISResMat, Cupid, and Distribution Based. We keep the official method names and evaluate all methods as predicted alignments over the candidate space of each table pair.
+
+\subsection{Evaluation Metrics}
+
+The main effectiveness metric is \emph{F1 all-to-all}. For a table pair \(p\), let \(G_p\) be the set of ground-truth correspondences and let \(A_p\) be the set of predicted correspondences. For MetaMatch, if \(s_{uv}\) is the score assigned to candidate pair \((u,v)\), then the predicted set is
+\[
+A_p(\tau)=\{(u,v) \mid s_{uv} > \tau\},
+\]
+where \(\tau\) is selected on the training fold only and then applied to the test fold.
+
+For each table pair, we compute
+\[
+\mathrm{TP}_p=|A_p\cap G_p|, \qquad
+\mathrm{FP}_p=|A_p\setminus G_p|, \qquad
+\mathrm{FN}_p=|G_p\setminus A_p|.
+\]
+Here, TP means true positives, FP means false positives, and FN means false negatives.
+Precision, recall, and F1 for table pair \(p\) are then
+\[
+\mathrm{Prec}_p=\frac{\mathrm{TP}_p}{\mathrm{TP}_p+\mathrm{FP}_p}, \qquad
+\mathrm{Rec}_p=\frac{\mathrm{TP}_p}{\mathrm{TP}_p+\mathrm{FN}_p},
+\]
+\[
+\mathrm{F1}_p=\frac{2\mathrm{TP}_p}{2\mathrm{TP}_p+\mathrm{FP}_p+\mathrm{FN}_p}.
+\]
+True negatives are not used because the candidate space is highly imbalanced and dominated by non-matching pairs. Final reported values are the mean and standard deviation over the 551 table pairs, after computing the metric separately for each table pair so that large candidate spaces do not dominate the evaluation.
+
+\subsection{RQ1: Effectiveness and Baselines}
+
+Table~\ref{tab:metaspace_classifiers} reports the classifier comparison for MetaMatch. All models are trained on the same meta-space and evaluated on the same folds. Random Forest obtains the best mean F1, precision, and recall. XGBoost and CatBoost are the closest alternatives, whereas Logistic Regression and SVM remain clearly lower. This indicates that the decision boundary in the meta-space is non-linear and that tree-based models are better suited to combine syntactic, distance-based, and topological signals. We therefore use Random Forest for the comparison with baselines.
+
+\begin{table}[!t]
+\centering
+\caption{MetaMatch classifier comparison. Values are mean $\pm$ standard deviation over table pairs using F1, precision, and recall.}
+\label{tab:metaspace_classifiers}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Classifier} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+\midrule
+Random Forest & \best{0.81} $\pm$ 0.24 & \best{0.80} $\pm$ 0.26 & \best{0.84} $\pm$ 0.24 \\
+XGBoost & \second{0.65} $\pm$ 0.26 & \second{0.73} $\pm$ 0.28 & 0.64 $\pm$ 0.30 \\
+CatBoost & 0.61 $\pm$ 0.26 & 0.65 $\pm$ 0.28 & \second{0.65} $\pm$ 0.31 \\
+SVM & 0.50 $\pm$ 0.25 & 0.56 $\pm$ 0.28 & 0.55 $\pm$ 0.31 \\
+Logistic Regression & 0.50 $\pm$ 0.25 & 0.56 $\pm$ 0.28 & 0.54 $\pm$ 0.31 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:baselines_effectiveness} compares this configuration with the baselines over the same 551 table pairs. MetaMatch reaches a mean F1 of 0.81, with balanced precision and recall. It outperforms symbolic matchers, distance-based baselines, and fine-tuned matching systems, making it the strongest controlled non-LLM configuration in our benchmark.
+
+LLMATCH obtains the highest mean F1. We keep it in the comparison because it is an important recent baseline, but we interpret it separately: it relies on a large external language model whose training data and possible exposure to public benchmark schemas cannot be checked. Apart from this LLM-based method, MetaMatch is the best-performing approach in Table~\ref{tab:baselines_effectiveness}. The paired Wilcoxon signed-rank test with Holm correction in Table~\ref{tab:rq1_stat_tests} confirms that the gain over the non-LLM baselines is statistically significant~\cite{wilcoxon1945individual,holm1979simple}.
+
+\begin{table}[!t]
+\centering
+\caption{Effectiveness against baselines. Values are mean $\pm$ standard deviation over table pairs using F1, precision, and recall.}
+\label{tab:baselines_effectiveness}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+\midrule
+LLMATCH & \best{0.85} $\pm$ 0.25 & \best{0.84} $\pm$ 0.28 & \best{0.93} $\pm$ 0.18 \\
+MetaMatch & \second{0.81} $\pm$ 0.24 & \second{0.80} $\pm$ 0.26 & 0.84 $\pm$ 0.24 \\
+MagnetoFTGPT & 0.74 $\pm$ 0.25 & 0.76 $\pm$ 0.30 & 0.85 $\pm$ 0.19 \\
+MagnetoGPT & 0.72 $\pm$ 0.29 & 0.70 $\pm$ 0.33 & \second{0.90} $\pm$ 0.15 \\
+SMUTF & 0.70 $\pm$ 0.28 & 0.72 $\pm$ 0.32 & 0.75 $\pm$ 0.28 \\
+MagnetoFT & 0.61 $\pm$ 0.27 & 0.56 $\pm$ 0.29 & 0.80 $\pm$ 0.23 \\
+Magneto & 0.58 $\pm$ 0.29 & 0.51 $\pm$ 0.30 & 0.84 $\pm$ 0.20 \\
+COMA++ & 0.54 $\pm$ 0.28 & 0.73 $\pm$ 0.37 & 0.52 $\pm$ 0.30 \\
+COMA & 0.51 $\pm$ 0.27 & 0.72 $\pm$ 0.35 & 0.48 $\pm$ 0.31 \\
+Similarity Flooding & 0.50 $\pm$ 0.35 & 0.47 $\pm$ 0.35 & 0.68 $\pm$ 0.39 \\
+ISResMat & 0.36 $\pm$ 0.29 & 0.31 $\pm$ 0.29 & 0.80 $\pm$ 0.25 \\
+Cupid & 0.32 $\pm$ 0.37 & 0.43 $\pm$ 0.40 & 0.35 $\pm$ 0.42 \\
+Distribution Based & 0.24 $\pm$ 0.25 & 0.30 $\pm$ 0.30 & 0.24 $\pm$ 0.29 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\caption{Paired Wilcoxon signed-rank test between MetaMatch and each baseline on F1. $\Delta$F1 is MetaMatch minus baseline mean F1 on the 551 paired table pairs. Holm $p$ is corrected for multiple comparisons.}
+\label{tab:rq1_stat_tests}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Baseline} & \textbf{$\Delta$F1} & \textbf{Holm $p$-value} & \textbf{Significant} \\
+\midrule
+LLMATCH & -0.05 & 1.000 & No \\
+MagnetoFTGPT & 0.06 & 0.002 & Yes \\
+MagnetoGPT & 0.08 & 0.011 & Yes \\
+SMUTF & 0.10 & $<0.001$ & Yes \\
+MagnetoFT & 0.19 & $<0.001$ & Yes \\
+Magneto & 0.23 & $<0.001$ & Yes \\
+COMA++ & 0.26 & $<0.001$ & Yes \\
+COMA & 0.30 & $<0.001$ & Yes \\
+Similarity Flooding & 0.31 & $<0.001$ & Yes \\
+ISResMat & 0.45 & $<0.001$ & Yes \\
+Cupid & 0.49 & $<0.001$ & Yes \\
+Distribution Based & 0.56 & $<0.001$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:rq1_effectiveness_visuals} complements the tables by showing the distribution of F1 across table pairs and the pairwise win rates. This analysis verifies that the result is not driven by a small number of easy pairs. MetaMatch remains competitive across the benchmark and wins against most non-LLM baselines on a large fraction of table pairs.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=.84\textwidth]{images/plot_distribution_baseline.png}\par\vspace{2pt}
+    \includegraphics[width=.74\textwidth]{images/plot_winrate_f1_all_to_all_no_ties_matplotlib_percent_heatmap.png}
+    \caption{Effectiveness visualization for F1. Top: distribution over table pairs, with the white marker indicating the mean. Bottom: pairwise win-rate matrix; each cell reports how often the row method outperforms the column method, excluding ties.}
+    \Description{Combined figure with boxplots of F1 and a heatmap of pairwise win rates among MetaMatch and baseline methods.}
+    \label{fig:rq1_effectiveness_visuals}
+\end{figure*}
+
+Figure~\ref{fig:rq1_effectiveness_breakdowns} gives the same analysis by relation type and dataset source. MetaMatch remains strong on Joinable, Semantically-Joinable, Unionable, and View-Unionable pairs, and is especially stable on OpenData, the largest and most heterogeneous source. Magellan and Wikidata contain only 7 and 4 table pairs, respectively, so their dataset-level distributions should be read as qualitative checks. Overall, these results show that MetaMatch is competitive across the benchmark, not only on one subset.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=.88\textwidth]{images/plot_effectiveness_by_relation_distribution.png}\par\vspace{4pt}
+    \includegraphics[width=.88\textwidth]{images/plot_effectiveness_by_dataset_distribution.png}
+    \caption{F1 distribution by relation type and dataset source. Each panel compares MetaMatch and baselines on the same pair-level metric used in RQ1.}
+    \Description{Two distribution plots showing pair-level F1 by relation type and by dataset source for MetaMatch and baseline methods.}
+    \label{fig:rq1_effectiveness_breakdowns}
+\end{figure*}
+
+
+\noindent\textbf{Discussion.}
+Taken together, the classifier comparison, baseline table, distributions, and win-rate matrix show that MetaMatch with Random Forest is the strongest controlled non-LLM configuration in this benchmark. LLMATCH remains higher on average, but we interpret it separately because it relies on an external large language model. The breakdowns by relation type and dataset source indicate that this behavior is not driven by one subset only; MetaMatch stays competitive across the benchmark.
+
+\subsection{RQ2: Meta-feature Selection}
+We study whether the meta-space can be reduced without losing the signal carried by the topological descriptors. Feature selection is commonly organized into filter, wrapper, embedded, and hybrid families~\cite{islam2022featureselection}. In preliminary experiments, which will be made available in the companion site, we evaluated several strategies from these families: Mutual Information filters, minimum-redundancy maximum-relevance (mRMR) variants, forward and backward sequential selection, Random Forest and XGBoost importance rankings, SHapley Additive exPlanations (SHAP)-based rankings inspired by recent explainable artificial intelligence feature-selection work~\cite{kraev2024shapselect}, and hybrid combinations over several values of $k$.
+
+The final strategy has two levels. First, we apply Pearson correlation pruning with threshold 0.85. When two meta-features are strongly correlated, we keep the one with the highest Mutual Information with the matching label. This removes repeated measurements of the same evidence while keeping the most informative signal. Second, we rank the remaining meta-features with Random Forest importance and retain the top $k$ meta-features. The value $k=10$ was selected from the preliminary grid because it gave the best compromise between F1, stability, runtime, and interpretability.
+
+The selected set contains 10 meta-features: 7 syntactic, 2 distance-based, and 1 topological. The syntactic meta-features cover complementary lexical signals: character $n$-grams, token Jaccard, Jaro--Winkler, LCS ratio, target-name length, and common-suffix ratio. This confirms that names and representative values remain strong evidence in Valentine. The two retained distance-based meta-features are Euclidean and Chebyshev distances between pooled embeddings. They capture two different forms of semantic separation: global displacement in the embedding space and the largest coordinate-level discrepancy. The selected topological descriptor is \texttt{tda\_h0\_entropy\_combined}, which summarizes connected-component persistence entropy on the joint source--target cloud.
+
+Table~\ref{tab:feature_selection_reduced} compares this selected set with the full meta-space. The reduced MetaMatch remains close to the full model, with F1 decreasing only from 0.81 to 0.79, while runtime is greatly reduced. The behavior of the model changes: precision increases from 0.80 to 0.95, while recall decreases from 0.84 to 0.71. The reduced representation is therefore more selective: it outputs fewer uncertain correspondences, but the correspondences it keeps are more reliable.
+
+
+\noindent\textbf{Discussion.}
+The main observation is that the selected set is not made of one family only. It keeps lexical evidence, two distance-based descriptors, and one topological descriptor. This supports the idea that the three families are not interchangeable. Syntactic meta-features remain essential, distance-based meta-features provide semantic separation, and topology adds a different geometric signal.
+
+The topological result is particularly important. The only retained topological descriptor is not a distance between two separately computed diagrams. It is a combined-cloud descriptor, computed after projecting the two column representations into the same space and building one joint diagram. Thus, topology does not replace classical evidence. It shows that topology complements it with a non-redundant signal, and that this signal comes from the joint source--target construction. The runtime impact of this reduced representation is reported in RQ3.
+
+\begin{table}[H]
+\centering
+\caption{Full MetaMatch versus reduced selected meta-feature set. Meta-feature generation time is estimated from representative table pairs and scaled to all 551 pairs; Random Forest train and test time is reported separately.}
+\label{tab:feature_selection_reduced}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Set} & \textbf{\# meta-features} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} & \textbf{Generation time (s)} & \textbf{Random Forest train+test (s)} & \textbf{Total time (s)} \\
+\midrule
+Full & 60 & \best{0.81} $\pm$ 0.24 & \second{0.80} $\pm$ 0.26 & \best{0.84} $\pm$ 0.24 & 66251.24 & 249.47 & 66500.71 \\
+Reduced & 10 & \second{0.79} $\pm$ 0.18 & \best{0.95} $\pm$ 0.16 & \second{0.71} $\pm$ 0.23 & 5424.98 & 195.28 & 5620.26 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+
+\FloatBarrier
+
+\subsection{RQ3: Efficiency}
+
+For efficiency, we separate preliminary computation from application time. Preliminary computation includes operations performed before final scoring: meta-feature or baseline-feature extraction, training, or fine-tuning when applicable. Application time is the final prediction or scoring step. We report both the full MetaMatch and the reduced MetaMatch selected in RQ2.
+
+This separation is important for a fair reading of the results. For MetaMatch, preliminary time includes meta-feature generation and Random Forest training over the six folds. For SMUTF, it includes its own feature extraction and model training. For MagnetoFT and MagnetoFTGPT, it includes dataset-category fine-tuning before application.
+
+\begin{table}[h]
+\centering
+\caption{Efficiency summary. Preliminary time includes meta-feature or baseline-feature extraction over the 551 table pairs and training or fine-tuning over the six folds when applicable. Application time reports only the prediction/scoring step over the six folds.}
+\label{tab:efficiency_summary}
+\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Method} & \textbf{Preliminary time (s)} & \textbf{Application time (s)} & \textbf{Total time (s)} \\
+\midrule
+Full MetaMatch & 66565.13 & 3.76 & 66568.89 \\
+Reduced MetaMatch & 5619.63 & 0.63 & 5620.26 \\
+SMUTF & 59214.97 & 15.60 & 59230.57 \\
+LLMATCH & 0.00 & 343.76 & 343.76 \\
+MagnetoFTGPT & 306456.07 & 45807.13 & 352263.20 \\
+MagnetoFT & 306456.07 & 9413.56 & 315869.63 \\
+MagnetoGPT & 0.00 & 139243.13 & 139243.13 \\
+Magneto & 0.00 & 10488.01 & 10488.01 \\
+ISResMat & 0.00 & 347.45 & 347.45 \\
+COMA++ & 0.00 & 382.48 & 382.48 \\
+COMA & 0.00 & 385.02 & 385.02 \\
+Similarity Flooding & 0.00 & 2875.94 & 2875.94 \\
+Distribution Based & 0.00 & 36318.01 & 36318.01 \\
+Cupid & 0.00 & 128.55 & 128.55 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.92\columnwidth]{images/fig_rq4_total_runtime_bar.png}
+    \caption{Total runtime over the 551 table pairs, including full and reduced MetaMatch.}
+    \Description{Horizontal bar chart comparing total runtime across MetaMatch and baseline methods.}
+    \label{fig:efficiency_total_runtime}
+\end{figure}
+
+\noindent\textbf{Discussion.}
+The main cost of full MetaMatch is not the Random Forest application step, which takes only 3.76 seconds over the six test folds, but the construction of the meta-space. This is expected: topological descriptors require building geometric representations of column-value embeddings and computing persistent-homology summaries. The reduced version changes this trade-off substantially: total runtime decreases from 66568.89 seconds to 5620.26 seconds, an approximately 11.8$\times$ speedup, while keeping F1 close to the full model.
+
+Topology-aware evidence is useful, but it must be selected carefully. Lightweight symbolic systems such as Cupid, COMA, and LLMATCH have low measured application time in our setup, while SMUTF and MagnetoFT include substantial preliminary computation because they perform feature extraction, fine-tuning, or dataset-category-specific model preparation. SMUTF also has a longer application step than a single classifier because its prediction stage applies an ensemble of several XGBoost models. Reduced MetaMatch gives the best efficiency/effectiveness trade-off among the MetaMatch variants because it keeps the topological signal selected in RQ2 while avoiding most of the full construction cost.
+
+\FloatBarrier
+
+\subsection{RQ4: Family Ablation}
+
+Table~\ref{tab:family_ablation} reports the contribution of the three meta-feature families for both full and reduced MetaMatch. The reduced version keeps the selected meta-features from RQ2 and applies the same family ablation logic inside this reduced representation.
+
+
+\begin{table}[H]
+\centering
+\caption{Meta-feature family ablation for complete and reduced MetaMatch. Values are mean $\pm$ standard deviation over table pairs.}
+\label{tab:family_ablation}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\renewcommand{\arraystretch}{0.92}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Meta-feature set}} & \multicolumn{3}{c}{\textbf{Full}} & \multicolumn{3}{c}{\textbf{Reduced}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+ & \textbf{F1} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+\midrule
+All meta-features & \best{.81} $\pm$ .24 & .80 $\pm$ .26 & \best{.84} $\pm$ .24 & \best{.79} $\pm$ .18 & \best{.95} $\pm$ .16 & \best{.71} $\pm$ .23 \\
+Syntactic & .76 $\pm$ .22 & .93 $\pm$ .20 & .68 $\pm$ .26 & .77 $\pm$ .21 & \second{.94} $\pm$ .19 & .68 $\pm$ .25 \\
+Distance-based & .54 $\pm$ .29 & .77 $\pm$ .33 & .49 $\pm$ .31 & .50 $\pm$ .30 & .73 $\pm$ .34 & .44 $\pm$ .33 \\
+Topological & .55 $\pm$ .24 & .72 $\pm$ .31 & .52 $\pm$ .27 & .05 $\pm$ .10 & .21 $\pm$ .36 & .03 $\pm$ .09 \\
+Syntactic + Distance-based & .78 $\pm$ .19 & \best{.95} $\pm$ .16 & .69 $\pm$ .24 & .77 $\pm$ .19 & \best{.95} $\pm$ .17 & \second{.69} $\pm$ .24 \\
+Syntactic + Topological & \second{.79} $\pm$ .18 & \second{.94} $\pm$ .16 & \second{.71} $\pm$ .23 & \second{.78} $\pm$ .20 & \best{.95} $\pm$ .17 & \second{.69} $\pm$ .24 \\
+Distance-based + Topological & .66 $\pm$ .23 & .87 $\pm$ .24 & .59 $\pm$ .26 & .56 $\pm$ .27 & .79 $\pm$ .31 & .50 $\pm$ .30 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\noindent\textbf{Discussion.}
+The ablation results first show that syntactic meta-features are the strongest individual family, with F1 0.76 in the full representation and 0.77 in the reduced one. This is expected because many benchmark correspondences contain lexical patterns in attribute names and values. However, syntactic evidence alone loses recall compared with the full model, which means that some correct correspondences are missed when the representation only sees lexical similarity.
+
+Distance-based meta-features alone are weaker, with F1 0.54 in the full representation. This supports the motivation of the paper: reducing a column to pooled embedding distances is too coarse for schema matching. Two columns may have similar average embeddings while their value distributions are organized differently. Topological meta-features address this missing information by describing the structure of the value cloud rather than only its average position.
+
+Topology should not be used alone. In the full representation, topology alone reaches F1 0.55. The important result is the gain obtained when topology is combined with other evidence. Syntactic plus topological meta-features reaches F1 0.79, close to the full 0.81 and above syntactic alone. Distance-based plus topological meta-features also improves over distance-based alone, from 0.54 to 0.66.
+
+For reduced MetaMatch, the same pattern remains visible. The reduced model keeps only one topological meta-feature, the combined H0 entropy descriptor, yet syntactic plus topological descriptors reach F1 0.78, close to the full reduced score of 0.79. This confirms the central claim of MetaMatch: topology is not the only source of evidence, but the joint source--target topological representation provides an extra signal that strengthens classical and embedding-based meta-features.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented MetaMatch, a topology-aware meta-space for schema matching over complete tabular data. The framework combines syntactic, distance-based, and topological meta-features, then learns correspondences with a supervised classifier. Its main method contribution is the introduction of a joint topological representation for candidate column pairs. Beyond computing separate persistence diagrams and diagram distances, MetaMatch projects the two token-level column representations into the same embedding space and builds a single combined diagram that describes their joint shape.
+
+The experiments support this design. Pooled embedding distances alone remain clearly below the full representation, showing that a small set of vector distances is not sufficient to capture the full matching signal. At the same time, topology alone is not intended to replace lexical or semantic evidence. Its value appears when it is combined with them. This is confirmed by the reduced 10-meta-feature model: after correlation pruning and Random Forest importance selection, the only retained topological descriptor is the combined H0 entropy meta-feature. This result gives experimental support to the idea that the way two token clouds merge in a shared space is informative for schema matching.
+
+Overall, MetaMatch shows that topological meta-features can enrich standard schema matching evidence with geometric information that is lost when columns are reduced to single pooled vectors. The reduced version preserves most of the effectiveness of the full representation while greatly lowering the construction cost. Future work will study richer summaries of persistence diagrams, such as lifetime quantiles, persistence images, persistence landscapes, and Betti curves, while controlling their computational cost. We also plan to extend MetaMatch to ontology matching, where labels, descriptions, graph structure, and logical relations may provide additional signals for the topological meta-space, and to study how the joint topological signal can complement newer language-model-based matchers.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}

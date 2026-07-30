@@ -1,0 +1,9 @@
+config,feature_set,n_features,mean_f1,std_f1,mean_precision,std_precision,mean_recall,std_recall,protocol_note
+full60,Full,60,0.81,0.24,0.8,0.26,0.84,0.24,RQ1 OPT_PAIRF1_TRAIN_FAST
+syn_only,Syntactic,22,0.76,0.22,0.93,0.2,0.68,0.26,train-only pair_mean_std_train
+distance_only,Distance-based,7,0.54,0.29,0.77,0.33,0.49,0.31,train-only pair_mean_std_train
+topological_only,Topological,31,0.55,0.24,0.72,0.31,0.52,0.27,train-only pair_mean_std_train
+syn_distance,Syntactic + Distance-based,29,0.78,0.19,0.95,0.16,0.69,0.24,train-only pair_mean_std_train
+syn_topological,Syntactic + Topological,53,0.79,0.18,0.94,0.16,0.71,0.23,train-only pair_mean_std_train
+distance_topological,Distance-based + Topological,38,0.66,0.23,0.87,0.24,0.59,0.26,train-only pair_mean_std_train
+compact10,Compact,10,0.79,0.18,0.95,0.16,0.71,0.23,train-only pair_mean_std_train

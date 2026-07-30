@@ -1,0 +1,15 @@
+method,preliminary_computation,preliminary_time_sec,application_computation,application_time_sec,total_time_sec,total_time_hours
+Full MetaSpace,60 feature construction over 551 pairs + RF training over 6 folds,66565.13,RF predict only over 6 folds,3.76,66568.89,18.49
+Reduced MetaSpace,10 feature construction over 551 pairs + RF training over 6 folds,5619.63,RF predict only over 6 folds,0.63,5620.26,1.56
+SMUTF,SMUTF feature extraction over 551 pairs + measured complet-complet fine-tuning,59214.97,XGBoost predict only over 6 folds,15.6,59230.57,16.45
+LLMATCH,/,0.0,observed task runtime over 6 folds,343.76,343.76,0.1
+MagnetoFTGPT,fine-tuning estimate,306456.07,observed task runtime over 6 folds,45807.13,352263.2,97.85
+MagnetoFT,fine-tuning estimate,306456.07,observed task runtime over 6 folds,9413.56,315869.63,87.74
+MagnetoGPT,/,0.0,observed task runtime over 6 folds,139243.13,139243.13,38.68
+Magneto,/,0.0,observed task runtime over 6 folds,10488.01,10488.01,2.91
+ISResMat,/,0.0,observed task runtime over 6 folds,347.45,347.45,0.1
+COMA++,/,0.0,observed task runtime over 6 folds,382.48,382.48,0.11
+COMA,/,0.0,observed task runtime over 6 folds,385.02,385.02,0.11
+Similarity Flooding,/,0.0,observed task runtime over 6 folds,2875.94,2875.94,0.8
+Distribution Based,/,0.0,observed task runtime over 6 folds,36318.01,36318.01,10.09
+Cupid,/,0.0,observed task runtime over 6 folds,128.55,128.55,0.04

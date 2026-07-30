@@ -1,0 +1,79 @@
+method,raw_method,fold_id,runtime_sec,source
+Full MetaSpace,meta_space,0,,outputs/exp_occidata/results/fold_0/meta_space/task_info.json
+Full MetaSpace,meta_space,1,,outputs/exp_occidata/results/fold_1/meta_space/task_info.json
+Full MetaSpace,meta_space,2,,outputs/exp_occidata/results/fold_2/meta_space/task_info.json
+Full MetaSpace,meta_space,3,,outputs/exp_occidata/results/fold_3/meta_space/task_info.json
+Full MetaSpace,meta_space,4,,outputs/exp_occidata/results/fold_4/meta_space/task_info.json
+Full MetaSpace,meta_space,5,,outputs/exp_occidata/results/fold_5/meta_space/task_info.json
+SMUTF,SMUTF,0,10278.911955160089,outputs/exp_occidata/results/fold_0/SMUTF/task_info.json
+SMUTF,SMUTF,1,10679.602025680942,outputs/exp_occidata/results/fold_1/SMUTF/task_info.json
+SMUTF,SMUTF,2,10384.013293850236,outputs/exp_occidata/results/fold_2/SMUTF/task_info.json
+SMUTF,SMUTF,3,9462.308487889124,outputs/exp_occidata/results/fold_3/SMUTF/task_info.json
+SMUTF,SMUTF,4,10749.598799308063,outputs/exp_occidata/results/fold_4/SMUTF/task_info.json
+SMUTF,SMUTF,5,3177.1402826085687,outputs/exp_occidata/results/fold_5/SMUTF/task_info.json
+LLMATCH,LLMATCH,0,61.67747007100843,outputs/exp_occidata/results/fold_0/LLMATCH/task_info.json
+LLMATCH,LLMATCH,1,61.93156929593533,outputs/exp_occidata/results/fold_1/LLMATCH/task_info.json
+LLMATCH,LLMATCH,2,62.31686020176858,outputs/exp_occidata/results/fold_2/LLMATCH/task_info.json
+LLMATCH,LLMATCH,3,62.90729576302692,outputs/exp_occidata/results/fold_3/LLMATCH/task_info.json
+LLMATCH,LLMATCH,4,59.73568968998734,outputs/exp_occidata/results/fold_4/LLMATCH/task_info.json
+LLMATCH,LLMATCH,5,35.18687059171498,outputs/exp_occidata/results/fold_5/LLMATCH/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,0,8497.746977125295,outputs/exp_occidata/results/fold_0/Magneto_ft_gpt/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,1,8243.648024721071,outputs/exp_occidata/results/fold_1/Magneto_ft_gpt/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,2,7982.788479537703,outputs/exp_occidata/results/fold_2/Magneto_ft_gpt/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,3,8269.626944297925,outputs/exp_occidata/results/fold_3/Magneto_ft_gpt/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,4,8375.23576525785,outputs/exp_occidata/results/fold_4/Magneto_ft_gpt/task_info.json
+MagnetoFTGPT,Magneto_ft_gpt,5,4438.081861334853,outputs/exp_occidata/results/fold_5/Magneto_ft_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,0,1605.5661547379568,outputs/exp_occidata/results/fold_0/Magneto_ft_no_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,1,1676.8443023115396,outputs/exp_occidata/results/fold_1/Magneto_ft_no_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,2,2116.585182696581,outputs/exp_occidata/results/fold_2/Magneto_ft_no_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,3,1565.682801806368,outputs/exp_occidata/results/fold_3/Magneto_ft_no_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,4,1572.3088221400976,outputs/exp_occidata/results/fold_4/Magneto_ft_no_gpt/task_info.json
+MagnetoFT,Magneto_ft_no_gpt,5,876.5683904120233,outputs/exp_occidata/results/fold_5/Magneto_ft_no_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,0,25223.914715574123,outputs/exp_occidata/results/fold_0/Magneto_no_ft_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,1,25188.297836715356,outputs/exp_occidata/results/fold_1/Magneto_no_ft_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,2,25043.868684357032,outputs/exp_occidata/results/fold_2/Magneto_no_ft_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,3,25031.48528118804,outputs/exp_occidata/results/fold_3/Magneto_no_ft_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,4,24686.560087123886,outputs/exp_occidata/results/fold_4/Magneto_no_ft_gpt/task_info.json
+MagnetoGPT,Magneto_no_ft_gpt,5,14068.999381916015,outputs/exp_occidata/results/fold_5/Magneto_no_ft_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,0,1849.2698433417827,outputs/exp_occidata/results/fold_0/Magneto_no_ft_no_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,1,1845.190050587058,outputs/exp_occidata/results/fold_1/Magneto_no_ft_no_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,2,1920.05399514921,outputs/exp_occidata/results/fold_2/Magneto_no_ft_no_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,3,1885.2005603658035,outputs/exp_occidata/results/fold_3/Magneto_no_ft_no_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,4,1816.698440800421,outputs/exp_occidata/results/fold_4/Magneto_no_ft_no_gpt/task_info.json
+Magneto,Magneto_no_ft_no_gpt,5,1171.5941141527146,outputs/exp_occidata/results/fold_5/Magneto_no_ft_no_gpt/task_info.json
+ISResMat,ISResMat,0,62.06612953194417,outputs/exp_occidata/results/fold_0/ISResMat/task_info.json
+ISResMat,ISResMat,1,60.1139502460137,outputs/exp_occidata/results/fold_1/ISResMat/task_info.json
+ISResMat,ISResMat,2,61.707368828356266,outputs/exp_occidata/results/fold_2/ISResMat/task_info.json
+ISResMat,ISResMat,3,62.86305993399583,outputs/exp_occidata/results/fold_3/ISResMat/task_info.json
+ISResMat,ISResMat,4,59.695750329003204,outputs/exp_occidata/results/fold_4/ISResMat/task_info.json
+ISResMat,ISResMat,5,40.99985762918368,outputs/exp_occidata/results/fold_5/ISResMat/task_info.json
+COMA++,coma_pp,0,68.92591670714319,outputs/exp_occidata/results/fold_0/coma_pp/task_info.json
+COMA++,coma_pp,1,70.54647560697049,outputs/exp_occidata/results/fold_1/coma_pp/task_info.json
+COMA++,coma_pp,2,69.53416926390491,outputs/exp_occidata/results/fold_2/coma_pp/task_info.json
+COMA++,coma_pp,3,70.11952345399186,outputs/exp_occidata/results/fold_3/coma_pp/task_info.json
+COMA++,coma_pp,4,65.99269956501666,outputs/exp_occidata/results/fold_4/coma_pp/task_info.json
+COMA++,coma_pp,5,37.36141650751233,outputs/exp_occidata/results/fold_5/coma_pp/task_info.json
+COMA,coma,0,69.06888735573739,outputs/exp_occidata/results/fold_0/coma/task_info.json
+COMA,coma,1,69.44604930491187,outputs/exp_occidata/results/fold_1/coma/task_info.json
+COMA,coma,2,67.29326272400795,outputs/exp_occidata/results/fold_2/coma/task_info.json
+COMA,coma,3,73.3221292279195,outputs/exp_occidata/results/fold_3/coma/task_info.json
+COMA,coma,4,68.77410571463406,outputs/exp_occidata/results/fold_4/coma/task_info.json
+COMA,coma,5,37.1185170810204,outputs/exp_occidata/results/fold_5/coma/task_info.json
+Similarity Flooding,similarity_flooding,0,484.06803987920284,outputs/exp_occidata/results/fold_0/similarity_flooding/task_info.json
+Similarity Flooding,similarity_flooding,1,536.3462959313765,outputs/exp_occidata/results/fold_1/similarity_flooding/task_info.json
+Similarity Flooding,similarity_flooding,2,519.5119944640901,outputs/exp_occidata/results/fold_2/similarity_flooding/task_info.json
+Similarity Flooding,similarity_flooding,3,540.2414955879794,outputs/exp_occidata/results/fold_3/similarity_flooding/task_info.json
+Similarity Flooding,similarity_flooding,4,513.3136699572206,outputs/exp_occidata/results/fold_4/similarity_flooding/task_info.json
+Similarity Flooding,similarity_flooding,5,282.4599103741348,outputs/exp_occidata/results/fold_5/similarity_flooding/task_info.json
+Distribution Based,distribution_based,0,6615.365551236086,outputs/exp_occidata/results/fold_0/distribution_based/task_info.json
+Distribution Based,distribution_based,1,6501.9580795336515,outputs/exp_occidata/results/fold_1/distribution_based/task_info.json
+Distribution Based,distribution_based,2,6739.359176928992,outputs/exp_occidata/results/fold_2/distribution_based/task_info.json
+Distribution Based,distribution_based,3,6802.469748334959,outputs/exp_occidata/results/fold_3/distribution_based/task_info.json
+Distribution Based,distribution_based,4,6310.34743510501,outputs/exp_occidata/results/fold_4/distribution_based/task_info.json
+Distribution Based,distribution_based,5,3348.5106802647933,outputs/exp_occidata/results/fold_5/distribution_based/task_info.json
+Cupid,cupid,0,24.373303203028627,outputs/exp_occidata/results/fold_0/cupid/task_info.json
+Cupid,cupid,1,22.56131930463016,outputs/exp_occidata/results/fold_1/cupid/task_info.json
+Cupid,cupid,2,22.533296092995442,outputs/exp_occidata/results/fold_2/cupid/task_info.json
+Cupid,cupid,3,23.649412131868303,outputs/exp_occidata/results/fold_3/cupid/task_info.json
+Cupid,cupid,4,21.430013971985318,outputs/exp_occidata/results/fold_4/cupid/task_info.json
+Cupid,cupid,5,14.000036932062358,outputs/exp_occidata/results/fold_5/cupid/task_info.json

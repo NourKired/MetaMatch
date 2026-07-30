@@ -1,0 +1,15 @@
+method,fold_id,training_or_preliminary_sec,runtime_single_fold_sec,total_single_fold_sec,training_or_preliminary,source
+Full MetaSpace,0,249.47,11041.87,11291.34,RF train+test,RQ3 feature-construction estimate divided by 6 folds
+Reduced MetaSpace,0,195.28,904.16,1099.44,RF train+test,RQ3 compact construction estimate divided by 6 folds
+SMUTF,0,4499.0,10278.91,14777.91,measured complet-complet fine-tuning,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+LLMATCH,0,0.0,61.68,61.68,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+MagnetoFTGPT,0,0.0,8497.75,8497.75,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+MagnetoFT,0,0.0,1605.57,1605.57,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+MagnetoGPT,0,0.0,25223.91,25223.91,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+Magneto,0,0.0,1849.27,1849.27,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+ISResMat,0,0.0,62.07,62.07,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+COMA++,0,0.0,68.93,68.93,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+COMA,0,0.0,69.07,69.07,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+Similarity Flooding,0,0.0,484.07,484.07,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+Distribution Based,0,0.0,6615.37,6615.37,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable
+Cupid,0,0.0,24.37,24.37,/,task_info fold_0 runtime + measured SMUTF finetuning if applicable

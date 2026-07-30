@@ -1,0 +1,5 @@
+method,n_folds,mean_wall_time_sec,std_wall_time_sec,min_wall_time_sec,max_wall_time_sec,mean_wall_time_min,loads_fine_tuned_checkpoint,uses_gpt_reranker,training_time_sec_logged,training_time_status
+Magneto_ft_gpt,6,7634.521342045783,1575.2286277411447,4438.081861334853,8497.746977125295,127.24202236742973,True,True,,not_logged_pretrained_checkpoint_loaded
+Magneto_ft_no_gpt,6,1568.925942350761,398.0704617726427,876.5683904120233,2116.585182696581,26.148765705846017,True,False,,not_logged_pretrained_checkpoint_loaded
+Magneto_no_ft_gpt,6,23207.187664479075,4480.814040522578,14068.999381916015,25223.914715574123,386.78646107465124,False,True,,not_applicable_no_ft_variant
+Magneto_no_ft_no_gpt,6,1748.0011673994984,284.63705981994156,1171.5941141527146,1920.05399514921,29.133352789991637,False,False,,not_applicable_no_ft_variant
