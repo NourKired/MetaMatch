@@ -1,3 +1,0 @@
-config,feature_set,n_features,mean_f1,std_f1,mean_precision,std_precision,mean_recall,std_recall,protocol_note,model_time_sec
-full60,Full,60,0.81,0.24,0.8,0.26,0.84,0.24,RQ1 OPT_PAIRF1_TRAIN_FAST,249.47
-compact10,Compact,10,0.79,0.18,0.95,0.16,0.71,0.23,train-only pair_mean_std_train,195.28

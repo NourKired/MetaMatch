@@ -1,2 +1,0 @@
-fold_id,n_train_rows,n_test_rows,n_features,n_estimators,class_weight,n_jobs,fit_sec,fit_min,predict_sec
-0,260706,118124,61,350,balanced_subsample,-1,50.586879986999996,0.8431146664499999,0.748685021

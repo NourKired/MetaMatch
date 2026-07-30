@@ -1,3 +1,0 @@
-feature_set,n_features,feature_construction_sec_551,rf_train_test_sec,end_to_end_sec_551,end_to_end_hours_551,end_to_end_gain_vs_full_pct,construction_note
-Full,60,66251.23855088222,249.47,66500.70855088222,18.472419041911728,0.0,Full meta-space construction estimated from representative pairs and scaled to 551 pairs.
-Compact,10,5424.977998331939,195.28,5620.257998331938,1.5611827773144273,91.54857426213488,Compact-only extractor computes only the 10 selected features; estimate from representative pairs scaled to 551 pairs.

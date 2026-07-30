@@ -1,7 +1,0 @@
-method,fold_id,runtime_sec_fold,n_pair_id_fold,runtime_sec_pair_amortized,runtime_source
-SMUTF,0,10278.911955160089,166,61.92115635638608,metrics.json fold runtime amortized by n_pair_id in fold
-SMUTF,1,10679.602025680942,166,64.33495196193338,metrics.json fold runtime amortized by n_pair_id in fold
-SMUTF,2,10384.013293850236,166,62.554296950905034,metrics.json fold runtime amortized by n_pair_id in fold
-SMUTF,3,9462.308487889124,166,57.00185836077785,metrics.json fold runtime amortized by n_pair_id in fold
-SMUTF,4,10749.598799308063,166,64.75661927294014,metrics.json fold runtime amortized by n_pair_id in fold
-SMUTF,5,3177.1402826085687,104,30.54942579431316,metrics.json fold runtime amortized by n_pair_id in fold
