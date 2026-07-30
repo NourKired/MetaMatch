@@ -1,6 +1,6 @@
 # MetaMatch Companion Repository
 
-GitHub repository: https://github.com/NourKired/metamatch
+GitHub repository: https://github.com/NourKired/MetaMatch
 
 This folder is the public companion artifact for the paper:
 
