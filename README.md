@@ -28,7 +28,7 @@ The repository is intentionally small. It includes only the code, commands, CSV 
 | `notebooks/` | Clean notebooks that load the released CSVs and figures. |
 | `results/` | Paper-ready CSV results, grouped by research question. |
 | `figures/` | Figures used in the article. |
-| `pyproject.toml` | Minimal Python project configuration. |
+| `pyproject.toml` | Poetry project configuration. |
 
 ## Experimental Protocol
 
@@ -49,10 +49,8 @@ The repository is intentionally small. It includes only the code, commands, CSV 
 git clone https://github.com/NourKired/MetaMatch.git
 cd MetaMatch
 
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -e .
+python3 -m pip install --upgrade poetry
+poetry install
 ```
 
 Or use the setup helper:
@@ -122,6 +120,12 @@ To open them:
 
 ```bash
 jupyter lab notebooks/
+```
+
+With Poetry:
+
+```bash
+poetry run jupyter lab notebooks/
 ```
 
 ## Baselines
@@ -238,3 +242,27 @@ figures/fig_rq4_total_runtime_bar.*
 ## Notes
 
 Large intermediate files are not included. This includes `.parquet` score matrices, cached embeddings, generated candidate matrices, external pretrained models, and private baseline checkpoints.
+
+## Development
+
+This repository follows a simple Python project layout inspired by the OKP4 Python template:
+
+- package name: `metamatch`;
+- source code under `src/metamatch/`;
+- reproducible commands under `run_commands/`;
+- tests under `tests/`;
+- dependency management with Poetry.
+
+Common commands:
+
+```bash
+make install
+make test
+make lint
+make typecheck
+```
+
+The repository uses lowercase Python package and module names. For commit signing and organization-specific Git conventions, see the OKP4 guidelines:
+
+- https://work.okp4.com/dev/signing-commits
+- https://work.okp4.com/dev/naming-rules

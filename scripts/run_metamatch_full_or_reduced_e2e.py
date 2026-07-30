@@ -19,14 +19,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-from benchmark_metamatch_60_feature_runtime import (  # noqa: E402
+from benchmark_metamatch_full60_feature_runtime import (  # noqa: E402
     _build_column_text,
     _get_encoder,
     _load_df,
     _normalize_name,
 )
 from benchmark_metamatch_reduced10_feature_runtime import (  # noqa: E402
-    COMPACT_FEATURES,
+    REDUCED_FEATURES,
     compute_reduced_syntax,
     h0_entropy_combined,
 )
@@ -147,7 +147,7 @@ def build_pair_reduced_labeled(pair, args: argparse.Namespace) -> pd.DataFrame:
                 "target_col_norm": t["norm"],
                 "label": 1 if (s["norm"], t["norm"]) in gt_pairs else 0,
             }
-            for feat in COMPACT_FEATURES:
+            for feat in REDUCED_FEATURES:
                 row[feat] = float(feats.get(feat, 0.0))
             rows.append(row)
 
@@ -174,7 +174,7 @@ def build_reduced_metamatch(pairs, args: argparse.Namespace) -> pd.DataFrame:
 def feature_columns_for_config(df: pd.DataFrame, config: str) -> List[str]:
     if config == "full60":
         return all_paper_features(df)
-    return list(COMPACT_FEATURES)
+    return list(REDUCED_FEATURES)
 
 
 def evaluate_rf(metamatch_df: pd.DataFrame, fold_manifests: List[dict], features: List[str], args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame, dict]:

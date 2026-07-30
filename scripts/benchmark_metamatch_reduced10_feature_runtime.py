@@ -15,7 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from benchmark_metamatch_60_feature_runtime import (  # noqa: E402
+from benchmark_metamatch_full60_feature_runtime import (  # noqa: E402
     _build_column_text,
     _get_encoder,
     _load_df,
@@ -38,7 +38,7 @@ from metamatch.meta_features.syntax import (  # noqa: E402
 from ripser import ripser  # noqa: E402
 
 
-COMPACT_FEATURES = [
+REDUCED_FEATURES = [
     "syn_cosine_bigrams",
     "syn_jaccard_trigrams",
     "syn_jaccard_tokens",
@@ -171,7 +171,7 @@ def build_pair_reduced_features(pair, args: argparse.Namespace) -> pd.DataFrame:
             feats.update(compute_classical_features(s["vec"], t["vec"]))
             feats["tda_h0_entropy_combined"] = h0_entropy_combined(s["tok"], t["tok"])
             row = {"pair_id": pair.pair_id, "source_column": src_col, "target_column": tgt_col}
-            for feat in COMPACT_FEATURES:
+            for feat in REDUCED_FEATURES:
                 row[feat] = float(feats.get(feat, 0.0))
             rows.append(row)
 
@@ -219,7 +219,7 @@ def main() -> None:
             "n_tgt_cols": int(row["n_tgt_cols"]),
             "candidate_pairs": int(row["candidate_pairs"]),
             "n_rows_out": int(len(feat_df)),
-            "n_features": len(COMPACT_FEATURES),
+            "n_features": len(REDUCED_FEATURES),
             "feature_build_sec_pair_reduced10": measured,
             "outer_elapsed_sec": float(time.perf_counter() - t_outer),
             "sec_per_candidate": measured / max(int(row["candidate_pairs"]), 1),
@@ -245,7 +245,7 @@ def main() -> None:
     summary = {
         "n_total_pairs": int(all_df["pair_id"].nunique()),
         "n_timed_representatives": int(len(reps)),
-        "n_features_measured": len(COMPACT_FEATURES),
+        "n_features_measured": len(REDUCED_FEATURES),
         "feature_definition": "reduced10 selected features with optimized h0 entropy combined only",
         "estimated_total_feature_build_sec_551": float(all_df["estimated_feature_build_sec_pair_reduced10"].sum()),
         "estimated_mean_feature_build_sec_pair_reduced10": float(all_df["estimated_feature_build_sec_pair_reduced10"].mean()),

@@ -3,9 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -e .
+python3 -m pip install --upgrade poetry
+poetry install
 
-python -m ipykernel install --user --name metamatch --display-name "MetaMatch"
+poetry run python -m ipykernel install --user --name metamatch --display-name "MetaMatch"
