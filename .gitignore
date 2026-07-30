@@ -4,8 +4,10 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 outputs/
-data/
 valentine/
-*.parquet
 *.pkl
 *.joblib
+*.parquet
+!data/
+!data/**
+!data/folds/**/*.parquet

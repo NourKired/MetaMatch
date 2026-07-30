@@ -24,6 +24,8 @@ The repository is intentionally small. It includes only the code, commands, CSV 
 | `src/metamatch/` | MetaMatch source code: meta-feature extraction, split construction, modeling, evaluation, and baseline utilities. |
 | `scripts/` | Python scripts used to generate the reported tables, figures, and timing results. |
 | `run_commands/` | Shell commands for the main experimental blocks. |
+| `data/folds/` | Released train/test folds used in the experiments. |
+| `notebooks/` | Clean notebooks that load the released CSVs and figures. |
 | `results/` | Paper-ready CSV results, grouped by research question. |
 | `figures/` | Figures used in the article. |
 | `pyproject.toml` | Minimal Python project configuration. |
@@ -59,6 +61,26 @@ Or use the setup helper:
 bash run_commands/00_setup.sh
 ```
 
+## Released Folds
+
+The exact train/test folds used in the experiments are available in:
+
+```text
+data/folds/fold_0/train.parquet
+data/folds/fold_0/test.parquet
+...
+data/folds/fold_5/train.parquet
+data/folds/fold_5/test.parquet
+```
+
+Each fold also contains `split.json`. A fold summary is available in:
+
+```text
+data/folds_summary.csv
+```
+
+The split is built at table-pair level: all candidate source-target attribute pairs from the same table pair stay in the same fold.
+
 ## Running MetaMatch
 
 The main train/test pipeline is implemented in:
@@ -83,6 +105,23 @@ Run the RQ1 report generation from stored scores:
 
 ```bash
 bash run_commands/01_rq1_effectiveness_baselines.sh
+```
+
+## Notebooks
+
+The notebooks are intentionally simple and only load released results:
+
+| Notebook | Purpose |
+|---|---|
+| `notebooks/00_data_and_protocol.ipynb` | Shows the released folds and basic split statistics. |
+| `notebooks/01_rq1_effectiveness_baselines.ipynb` | Loads RQ1 tables and displays the effectiveness/win-rate figures. |
+| `notebooks/02_rq2_rq3_rq4_selection_efficiency_ablation.ipynb` | Loads meta-feature selection, efficiency, and ablation results. |
+| `notebooks/03_topological_illustration.ipynb` | Displays the Vietoris-Rips filtration and persistence illustration used in the paper. |
+
+To open them:
+
+```bash
+jupyter lab notebooks/
 ```
 
 ## Baselines
